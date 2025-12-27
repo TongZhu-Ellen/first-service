@@ -26,12 +26,12 @@ func createHandler(w http.ResponseWriter, rp *http.Request) {
 		return 
 	}
 
-	inserted, err := createService(up)
+	affectedRows, err := createService(up)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte("Internal error: " + err.Error()))
 		return
-	} else if !inserted {
+	} else if affectedRows == 0 {
 		w.WriteHeader(409)
 		w.Write([]byte("User of given id existsed. "))
 		return

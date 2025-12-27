@@ -1,6 +1,6 @@
 package main
 
-func createService(up *User) (bool, error) {
+func createService(up *User) (int, error) {
 
 	return createRepo(up)
 }
