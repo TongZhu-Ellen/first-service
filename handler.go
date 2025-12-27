@@ -26,12 +26,12 @@ func createHandler(w http.ResponseWriter, rp *http.Request) {
 		return 
 	}
 
-	affectedRows, err := createService(up)
+	rowsAffected, err := createService(up)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte("Internal error: " + err.Error()))
 		return
-	} else if affectedRows == 0 {
+	} else if rowsAffected == 0 {
 		w.WriteHeader(409)
 		w.Write([]byte("User of given id existsed. "))
 		return
@@ -67,6 +67,45 @@ func readHandler(w http.ResponseWriter, rp *http.Request) {
 	w.WriteHeader(200)
 	w.Write(jsonify(up))
 
+
+
+
+}
+
+func updateHandler(w http.ResponseWriter, rp *http.Request) {
+
+	id := chi.URLParam(rp, "id")
+	reqp := &UpdateUserRequest{}
+
+	err := json.NewDecoder(rp.Body).Decode(reqp)
+	if err != nil {
+		w.WriteHeader(400)
+		w.Write([]byte("Decode error: " + err.Error()))
+		return 
+	}
+
+	rowsAffected, err := updateService(id, reqp) 
+
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("Internal error: " + err.Error()))
+		return 
+	} else if rowsAffected == 0 {
+		w.WriteHeader(400)
+		w.Write([]byte("Bad behavior. "))
+		return 
+	}
+
+	w.WriteHeader(200)
+	w.Write([]byte("Update succeed. "))
+
+
+
+	
+
+
+	
+	
 
 
 

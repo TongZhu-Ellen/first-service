@@ -8,6 +8,11 @@ type User struct {
 	
 }
 
+type UpdateUserRequest struct {
+    OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
 func jsonify(up *User) []byte {
 	
     if up == nil {

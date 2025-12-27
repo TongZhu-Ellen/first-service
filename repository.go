@@ -22,7 +22,7 @@ func initDB() {
 	}
 }
 
-func createRepo(up *User) (int, error) {
+func createRepo(up *User) (int64, error) {
     res, err := db.Exec("INSERT IGNORE INTO users (id, password) VALUES (?, ?)", up.Id, up.Password)
     if err != nil {
         return 0, err
@@ -48,4 +48,19 @@ func readRepo(id string) (*User, error) {
 
 }
 
+func updateRepo(id string, reqp *UpdateUserRequest) (int64, error) {
+
+	res, err := db.Exec(
+        "UPDATE users SET password = ? WHERE id = ? AND password = ?",
+        reqp.NewPassword,
+        id,
+        reqp.OldPassword,
+    )
+    if err != nil {
+        return 0, err
+    }
+
+    return res.RowsAffected()
+
+}
 
