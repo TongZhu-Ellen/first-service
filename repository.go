@@ -22,16 +22,18 @@ func initDB() {
 	}
 }
 
-func createRepo(up *User) error {
-
-	_, err := db.Exec(
-		"INSERT INTO users (id, password) VALUES (?, ?)",
-		up.Id, up.Password,
-	)
-
-	return err
-
+func createRepo(up *User) (bool, error) {
+    res, err := db.Exec("INSERT IGNORE INTO users (id, password) VALUES (?, ?)", up.Id, up.Password)
+    if err != nil {
+        return false, err
+    }
+    rows, _ := res.RowsAffected()
+    if rows == 0 {
+        return false, nil // 已存在
+    }
+    return true, nil // 插入成功
 }
+
 
 func readRepo(id string) (*User, error) {
 	var user User

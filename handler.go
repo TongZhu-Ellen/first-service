@@ -19,18 +19,27 @@ func createHandler(w http.ResponseWriter, rp *http.Request) {
 		w.Write([]byte("Decode error: " + err.Error()))
 		return 
 	} 
-
-	err = createService(up) 
-
-	if err != nil {
-		w.WriteHeader(500)
-		w.Write([]byte("Internal error: " + err.Error()))	
-		return
-
+	
+	if up.Id == "" || len(up.Id) > 255 {
+		w.WriteHeader(400)
+		w.Write([]byte("Invalid id selected. "))
+		return 
 	}
 
+	inserted, err := createService(up)
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("Internal error: " + err.Error()))
+		return
+	} else if !inserted {
+		w.WriteHeader(409)
+		w.Write([]byte("User of given id existsed. "))
+		return
+	}
 	w.WriteHeader(200)
-	w.Write([]byte("User of id *** " + up.Id + " *** created."))
+	w.Write([]byte("Creation succeed. "))
+
+	
 
 
 }
