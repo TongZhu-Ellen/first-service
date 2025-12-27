@@ -13,6 +13,8 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Post("/api/user", createHandler)
+	r.Get("/api/user/{id}", readHandler)
+
 
 
 	log.Fatal(http.ListenAndServe(":8080", r))

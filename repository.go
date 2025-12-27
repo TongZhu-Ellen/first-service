@@ -32,3 +32,20 @@ func createRepo(up *User) error {
 	return err
 
 }
+
+func readRepo(id string) (*User, error) {
+	var user User
+    err := db.QueryRow("SELECT id FROM users WHERE id = ?", id).Scan(&user.Id)
+
+    if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+
+    return &user, nil
+
+}
+
+
