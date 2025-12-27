@@ -36,9 +36,9 @@ func createHandler(w http.ResponseWriter, rp *http.Request) {
 		w.Write([]byte("User of given id existsed. "))
 		return
 	}
-	w.WriteHeader(200)
-	w.Write([]byte("Creation succeed. "))
-
+	w.Header().Set("Location", "/api/user/"+up.Id)
+	w.WriteHeader(201)
+	
 	
 
 
@@ -63,7 +63,7 @@ func readHandler(w http.ResponseWriter, rp *http.Request) {
 	}
 	
 	
-
+    w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	w.Write(jsonify(up))
 
@@ -97,7 +97,8 @@ func updateHandler(w http.ResponseWriter, rp *http.Request) {
 	}
 
 	w.WriteHeader(200)
-	w.Write([]byte("Update succeed. "))
+	
+	
 
 
 
@@ -119,6 +120,6 @@ func deleteHandler(w http.ResponseWriter, rp *http.Request) {
 		w.Write([]byte("Internal error: " + err.Error()))
 		return
 	}
-	w.WriteHeader(200)
-	w.Write([]byte("Delete succeed. "))
+	w.WriteHeader(204)
+	
 }
