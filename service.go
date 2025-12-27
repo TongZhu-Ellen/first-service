@@ -13,4 +13,7 @@ func updateService(id string, reqp *UpdateUserRequest) (int64, error) {
 	return updateRepo(id, reqp)
 }
 
+func deleteService(id string) error {
+	return deleteRepo(id)
+}
 

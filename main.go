@@ -15,6 +15,7 @@ func main() {
 	r.Post("/api/user", createHandler)
 	r.Get("/api/user/{id}", readHandler)
 	r.Put("/api/user/{id}", updateHandler)
+	r.Delete("/api/user/{id}", deleteHandler)
 
 
 

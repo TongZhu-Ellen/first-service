@@ -64,3 +64,7 @@ func updateRepo(id string, reqp *UpdateUserRequest) (int64, error) {
 
 }
 
+func deleteRepo(id string) error {
+	_, err := db.Exec("DELETE FROM users WHERE id = ?", id)
+	return err
+}

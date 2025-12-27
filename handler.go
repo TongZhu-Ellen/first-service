@@ -110,3 +110,15 @@ func updateHandler(w http.ResponseWriter, rp *http.Request) {
 
 
 }
+
+func deleteHandler(w http.ResponseWriter, rp *http.Request) {
+	id := chi.URLParam(rp, "id")
+	err := deleteService(id)
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("Internal error: " + err.Error()))
+		return
+	}
+	w.WriteHeader(200)
+	w.Write([]byte("Delete succeed. "))
+}
