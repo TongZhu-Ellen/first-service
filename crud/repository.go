@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/google/uuid"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -21,21 +21,10 @@ func initDB() {
 
 }
 
-func create(cp *UserCreation) (*User, error) {
+func create(up *User) error {
 
-	up := &User{
-		UserID:   uuid.NewString(),
-		Username: cp.Username,
-		Password: cp.Password,
-	}
+    return db.Create(up).Error
 
-	err := db.Create(up).Error
-	if err != nil {
-		return nil, err
-	}
-
-	up.Password = "******" // 6 *'s
-	return up, nil
 
 }
 
@@ -54,17 +43,17 @@ func read(userID string) (*User, error) {
 		return nil, err
 	}
 
-	up.Password = "******"
+	
 	return up, nil
 
 }
 
-func update(userID string, upp *UserUpdating) (int, error) {
+func update(userID string, infp *UserInfo) (int, error) {
 	res := db.Model(&User{}).
-		Where("user_id = ? AND password = ?", userID, upp.Password).
+		Where("user_id = ?", userID).
 		Updates(map[string]interface{}{
-			"username": upp.NewUsername,
-			"password": upp.NewPassword,
+			"username": infp.Username,
+			"password": infp.Password,
 		})
 
 	if res.Error != nil {
@@ -74,8 +63,8 @@ func update(userID string, upp *UserUpdating) (int, error) {
 	return int(res.RowsAffected), nil
 }
 
-func delete(userID string, dp *UserDeletion) (int, error) {
-	res := db.Where("user_id = ? AND password = ?", userID, dp.Password).Delete(&User{})
+func delete(userID string) (int, error) {
+	res := db.Where("user_id = ?", userID).Delete(&User{})
 	if res.Error != nil {
 		return 0, res.Error
 	}

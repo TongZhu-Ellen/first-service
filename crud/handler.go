@@ -4,26 +4,32 @@ import (
 	"encoding/json"
 	"net/http"
 	"log"
-
+	"fmt"
+	"github.com/google/uuid"
 	"github.com/go-chi/chi/v5"
 )
 
 func Create(w http.ResponseWriter, rp *http.Request) {
-	cp := &UserCreation{}
+	infp := &UserInfo{}
 
 	// 1️⃣ 解析请求
-	err := json.NewDecoder(rp.Body).Decode(cp)
+	err := json.NewDecoder(rp.Body).Decode(infp)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	if cp.Username == "" || cp.Password == "" {
+	if infp.Username == "" || infp.Password == "" {
 		http.Error(w, "Bad username or password selected!", http.StatusBadRequest)
 		return 
 	}
+	up := &User{
+		UserID:   uuid.NewString(),
+		Username: infp.Username,
+		Password: infp.Password,
+	}
 
 	// 2️⃣ 调用包内 create
-	up, err := create(cp)
+	err = create(up)
 	if err != nil {
 		log.Println("DB error:", err)
 		http.Error(w, "DB error", http.StatusInternalServerError)
@@ -31,8 +37,8 @@ func Create(w http.ResponseWriter, rp *http.Request) {
 	}
 
 	// 43️⃣ 设置响应头 + 返回 JSON
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(up)
+	w.Header().Set("Location", fmt.Sprintf("/user/%s", up.UserID))
+	w.WriteHeader(http.StatusCreated)  
 }
 
 func Read(w http.ResponseWriter, rp *http.Request) {
@@ -54,6 +60,8 @@ func Read(w http.ResponseWriter, rp *http.Request) {
 	}
 
 	// 设置响应头 + 返回 JSON
+	up.Password = "******"
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(up)
 
@@ -61,54 +69,49 @@ func Read(w http.ResponseWriter, rp *http.Request) {
 
 
 func Update(w http.ResponseWriter, rp *http.Request) {
-	upp := &UserUpdating{}
+	infp := &UserInfo{}
 	
 	idStr := chi.URLParam(rp, "id")
-	err := json.NewDecoder(rp.Body).Decode(upp)
+	err := json.NewDecoder(rp.Body).Decode(infp)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	if upp.NewUsername == "" || upp.NewPassword == "" {
+	if infp.Username == "" || infp.Password == "" {
 		http.Error(w, "Bad username or password!", http.StatusBadRequest)
 		return 
 	}
 
-	rows, err := update(idStr, upp)
+	rows, err := update(idStr, infp)
 	if err != nil {
 		log.Println("DB error:", err)
 		http.Error(w, "DB error", http.StatusInternalServerError)
 		return
 	}
+	if rows == 0 {
+		http.Error(w, "User not found", http.StatusNotFound)
+	}
 
-	// ✅ 完形填空：返回 JSON
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]int{
-		"rows_affected": rows,
-	})
+	
+
+	w.WriteHeader(204)
 
 }
 
 func Delete(w http.ResponseWriter, rp *http.Request) {
-	dp := &UserDeletion{}
+	
 
 	idStr := chi.URLParam(rp, "id") 
-	err := json.NewDecoder(rp.Body).Decode(dp)
-	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
 
-	rows, err := delete(idStr, dp)
+	rows, err := delete(idStr)
 	if err != nil {
 		log.Println("DB error:", err)
 		http.Error(w, "DB error", http.StatusInternalServerError)
 		return
 	}
+	if rows == 0 {
+		http.Error(w, "User not found", http.StatusNotFound)
+	}
 
-	// ✅ 完形填空：返回 JSON
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]int{
-		"rows_affected": rows,
-	})
+	w.WriteHeader(http.StatusNoContent) // 204
 }
