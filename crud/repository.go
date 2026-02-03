@@ -48,14 +48,8 @@ func read(userID string) (*User, error) {
 
 }
 
-func update(userID string, infp *UserInfo) (int, error) {
-	res := db.Model(&User{}).
-		Where("user_id = ?", userID).
-		Updates(map[string]interface{}{
-			"username": infp.Username,
-			"password": infp.Password,
-		})
-
+func update(up *User) (int, error) {
+	res := db.Save(up)
 	if res.Error != nil {
 		return 0, res.Error
 	}

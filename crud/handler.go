@@ -22,11 +22,7 @@ func Create(w http.ResponseWriter, rp *http.Request) {
 		http.Error(w, "Bad username or password selected!", http.StatusBadRequest)
 		return 
 	}
-	up := &User{
-		UserID:   uuid.NewString(),
-		Username: infp.Username,
-		Password: infp.Password,
-	}
+	up := infp.makeUser(uuid.NewString())
 
 	// 2️⃣ 调用包内 create
 	err = create(up)
@@ -82,7 +78,9 @@ func Update(w http.ResponseWriter, rp *http.Request) {
 		return 
 	}
 
-	rows, err := update(idStr, infp)
+	up := infp.makeUser(idStr)
+
+	rows, err := update(up)
 	if err != nil {
 		log.Println("DB error:", err)
 		http.Error(w, "DB error", http.StatusInternalServerError)
