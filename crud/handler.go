@@ -15,22 +15,23 @@ func Create(w http.ResponseWriter, rp *http.Request) {
 	// 1️⃣ 解析请求
 	err := json.NewDecoder(rp.Body).Decode(infp)
 	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 	if infp.Username == "" || infp.Password == "" {
-		http.Error(w, "Bad username or password selected!", http.StatusBadRequest)
+		http.Error(w, "bad username or password selected!", http.StatusBadRequest)
 		return 
 	}
 	up := infp.makeUser(uuid.New())
+	
 
-	// 2️⃣ 调用包内 create
 	err = create(up)
 	if err != nil {
 		log.Println("DB error:", err)
-		http.Error(w, "DB error", http.StatusInternalServerError)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
+
 
 	// 43️⃣ 设置响应头 + 返回 JSON
 	w.Header().Set("Location", fmt.Sprintf("/user/%s", up.UserID))
@@ -42,7 +43,7 @@ func Read(w http.ResponseWriter, rp *http.Request) {
 	userID, err := uuid.Parse(idStr)
 	if err != nil {
 		// 非法 UUID，直接返回 404
-		http.Error(w, "User not found", http.StatusNotFound)
+		http.Error(w, "user not found", http.StatusNotFound)
 		return
 	}
 	
@@ -50,11 +51,11 @@ func Read(w http.ResponseWriter, rp *http.Request) {
 	up, err := read(userID)
 	if err != nil {
 		log.Println("DB error:", err)
-		http.Error(w, "DB error", http.StatusInternalServerError)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 	if up == nil {
-		http.Error(w, "User not found", http.StatusNotFound)
+		http.Error(w, "user not found", http.StatusNotFound)
 		return
 	}
 
@@ -62,7 +63,12 @@ func Read(w http.ResponseWriter, rp *http.Request) {
 	up.Password = "******"
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(up)
+	err = json.NewEncoder(w).Encode(up)
+	if err != nil {
+		log.Println("JSON encode error:", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
 
 }
 
@@ -82,24 +88,26 @@ func Update(w http.ResponseWriter, rp *http.Request) {
 	infp := &UserInfo{}
 	err = json.NewDecoder(rp.Body).Decode(infp)
 	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 	if infp.Username == "" || infp.Password == "" {
-		http.Error(w, "Bad username or password!", http.StatusBadRequest)
+		http.Error(w, "bad username or password!", http.StatusBadRequest)
 		return 
 	}
 
 	up := infp.makeUser(userID)
-
+	
+	
 	rows, err := update(up)
 	if err != nil {
 		log.Println("DB error:", err)
-		http.Error(w, "DB error", http.StatusInternalServerError)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 	if rows == 0 {
-		http.Error(w, "User not found", http.StatusNotFound)
+		http.Error(w, "user not found", http.StatusNotFound)
+		return
 	}
 
 	
@@ -115,18 +123,18 @@ func Delete(w http.ResponseWriter, rp *http.Request) {
 	userID, err := uuid.Parse(idStr)
 	if err != nil {
 		// 非法 UUID，直接返回 404
-		http.Error(w, "User not found", http.StatusNotFound)
+		http.Error(w, "user not found", http.StatusNotFound)
 		return
 	}
 
 	rows, err := delete(userID)
 	if err != nil {
 		log.Println("DB error:", err)
-		http.Error(w, "DB error", http.StatusInternalServerError)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 	if rows == 0 {
-		http.Error(w, "User not found", http.StatusNotFound)
+		http.Error(w, "user not found", http.StatusNotFound)
 	}
 
 	w.WriteHeader(http.StatusNoContent) // 204
