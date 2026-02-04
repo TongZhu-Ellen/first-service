@@ -22,7 +22,7 @@ func Create(w http.ResponseWriter, rp *http.Request) {
 		http.Error(w, "Bad username or password selected!", http.StatusBadRequest)
 		return 
 	}
-	up := infp.makeUser(uuid.NewString())
+	up := infp.makeUser(uuid.New())
 
 	// 2️⃣ 调用包内 create
 	err = create(up)
@@ -39,12 +39,15 @@ func Create(w http.ResponseWriter, rp *http.Request) {
 
 func Read(w http.ResponseWriter, rp *http.Request) {
 	idStr := chi.URLParam(rp, "id")
-	if idStr == "" {
-		http.Error(w, "can not find nil id for you", http.StatusBadRequest)
+	userID, err := uuid.Parse(idStr)
+	if err != nil {
+		// 非法 UUID，直接返回 404
+		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
+	
 
-	up, err := read(idStr)
+	up, err := read(userID)
 	if err != nil {
 		log.Println("DB error:", err)
 		http.Error(w, "DB error", http.StatusInternalServerError)
@@ -65,10 +68,19 @@ func Read(w http.ResponseWriter, rp *http.Request) {
 
 
 func Update(w http.ResponseWriter, rp *http.Request) {
-	infp := &UserInfo{}
 	
+	// get userID
 	idStr := chi.URLParam(rp, "id")
-	err := json.NewDecoder(rp.Body).Decode(infp)
+	userID, err := uuid.Parse(idStr)
+	if err != nil {
+		// 非法 UUID，直接返回 404
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+	
+	// get other info
+	infp := &UserInfo{}
+	err = json.NewDecoder(rp.Body).Decode(infp)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
@@ -78,7 +90,7 @@ func Update(w http.ResponseWriter, rp *http.Request) {
 		return 
 	}
 
-	up := infp.makeUser(idStr)
+	up := infp.makeUser(userID)
 
 	rows, err := update(up)
 	if err != nil {
@@ -100,8 +112,14 @@ func Delete(w http.ResponseWriter, rp *http.Request) {
 	
 
 	idStr := chi.URLParam(rp, "id") 
+	userID, err := uuid.Parse(idStr)
+	if err != nil {
+		// 非法 UUID，直接返回 404
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
 
-	rows, err := delete(idStr)
+	rows, err := delete(userID)
 	if err != nil {
 		log.Println("DB error:", err)
 		http.Error(w, "DB error", http.StatusInternalServerError)

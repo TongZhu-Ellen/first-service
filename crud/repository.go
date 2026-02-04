@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 
-
+	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -28,7 +28,7 @@ func create(up *User) error {
 
 }
 
-func read(userID string) (*User, error) {
+func read(userID uuid.UUID) (*User, error) {
 	up := &User{}
 
 	err := db.Model(&User{}).
@@ -57,7 +57,7 @@ func update(up *User) (int, error) {
 	return int(res.RowsAffected), nil
 }
 
-func delete(userID string) (int, error) {
+func delete(userID uuid.UUID) (int, error) {
 	res := db.Where("user_id = ?", userID).Delete(&User{})
 	if res.Error != nil {
 		return 0, res.Error

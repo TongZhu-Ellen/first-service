@@ -1,7 +1,12 @@
 package main
 
+
+import (
+	"github.com/google/uuid"
+)
+
 type User struct {
-	UserID   string `gorm:"primaryKey"`
+	UserID   uuid.UUID `gorm:"primaryKey"`
 	Username string
 	Password string
 }
