@@ -1,4 +1,4 @@
-module jwt
+module jwt-support
 
 go 1.25.5
 
