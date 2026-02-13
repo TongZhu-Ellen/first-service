@@ -1,33 +1,70 @@
-
 # Project A: User Service Prototype
 
-A Golang microservice prototype for user management, supporting registration, login, and CRUD operations. Demonstrates basic backend capabilities, security design, and is designed for easy expansion of user attributes and authentication schemes.
+A Golang-based prototype for a user management service, implementing basic CRUD operations and security design.  
+This prototype demonstrates layered architecture, decoupled database operations and handlers, password security, and a basic JWT issuance/verification package. The database used is **PostgreSQL**, easily replaceable with other relational databases (e.g., MySQL).
 
-## Features
+---
 
-- User registration / login  
-- User information CRUD, easily extensible (e.g., email, birthday, shopping level, etc.)  
-- JWT authentication example (independent helper functions, ready to integrate into handlers)  
-- Secure password storage using bcrypt hashing  
-- Database persistence with PostgreSQL (can be swapped for MySQL)  
+## Features & Design
 
-> Note: OAuth support is not implemented, but the design allows easy integration. Suitable as a prototype or architecture reference.
+### 0. User Object CRUD Prototype
+
+- User object includes:
+  - `username`
+  - `password`
+  - System-assigned unique `UUID`  
+  > Can be extended to include email, date of birth, membership level, etc., but not implemented in this prototype.  
+
+- RESTful CRUD operations:
+  - **Create**: create a user  
+  - **Read**: retrieve user information  
+  - **Update**: update user information  
+  - **Delete**: remove a user  
+
+- Decoupled database operations and handler layer:
+  - Each CRUD operation corresponds to a separate database function: `create`, `read`, `update`, `delete`  
+  - Uses PostgreSQL for data persistence, supporting transactions and integrity checks  
+  - Handlers only manage HTTP interface logic, enabling future extensions or database replacements  
+
+- Password security:
+  - Stored using **bcrypt** hashing  
+  - Passwords are never stored in plain text, ensuring basic security  
+
+---
+
+### 1. JWT Issuance & Verification (Integrable Phase)
+
+- Independent JWT helper package:
+  - Issue and verify tokens  
+  - Supports HS256 signing  
+  - Can be integrated into handlers in the future for authentication middleware  
+
+- Prototype stage does not integrate context or auto-injection into CRUD handlers  
+  > CRUD and JWT functionalities are decoupled. Callers must manually use the JWT helper; “one-step” integration is not implemented yet.  
+
+---
 
 ## Tech Stack
 
-- **Golang + net/http + Chi**: Native HTTP server with lightweight routing  
-- **GORM**: ORM for database operations, supports PostgreSQL / MySQL  
-- **UUID**: Unique user IDs  
-- **JWT**: HS256 signing, independent helper functions provide issuing & parsing  
-- **PostgreSQL**: Transaction support and ORM mapping  
+- **Golang**: high-performance backend language  
+- **net/http + Chi**: lightweight routing and HTTP handlers  
+- **GORM**: ORM for PostgreSQL database operations  
+- **UUID**: unique user identifiers  
+- **bcrypt**: password hashing  
+- **JWT (HS256)**: token issuance and verification package  
+- **PostgreSQL**: transaction support, persistence, and data integrity  
+
+---
 
 ## Technical Highlights (Prototype-Oriented)
 
-- **Layered Design**: Handlers, models, and DB operations are separated for clarity  
-- **Security by Design**: Password hashing + JWT authentication example, ready for middleware integration  
-- **Prototype Extensibility**: User attributes and authentication schemes can be expanded easily, e.g., email, birthday, shopping level, OAuth  
-- **RESTful API**: Swagger documentation available for direct testing  
-- **Future-Ready**: Can seamlessly integrate OAuth2 or other authentication mechanisms for multi-auth, multi-attribute user management
+- **Layered Architecture**: fully decoupled handler and database layers, easy to extend  
+- **Security Design**: passwords are always hashed, demonstrating basic best practices  
+- **RESTful API**: standard CRUD interface for frontend or other service consumption  
+- **Database Integration**: PostgreSQL as the persistent layer, showcasing transaction and ORM capabilities  
+- **Extensibility**: user object fields can be expanded, JWT can be integrated into middleware; the prototype can smoothly evolve into a production-ready system  
+
+---
 
 
 ## API Examples
@@ -70,34 +107,71 @@ No Body
 
 # 项目 A：用户服务原型（User Service Prototype）
 
-一个用 Golang 构建的用户管理微服务原型，支持注册、登录和 CRUD，展示基础后端能力、安全设计思路，并为后续扩展复杂用户信息和认证方案做好准备。
+一个基于 Golang 的用户管理原型服务，实现了基本的 CRUD 操作与安全设计。  
+该原型展示了分层设计、数据库操作与 handler 解耦、密码安全处理，以及 JWT 分发/验证的基础能力。数据库使用 **PostgreSQL**，可轻松替换为其他关系型数据库（如 MySQL）。
 
-## 功能
+---
 
-- 用户注册 / 登录  
-- 用户信息 CRUD，可轻松扩展字段（邮箱、生日、购物等级等）  
-- JWT 身份认证示例（独立 helper 函数，可直接集成到 handler）  
-- 密码安全存储：使用 bcrypt 哈希  
-- 数据库持久化：PostgreSQL（可换 MySQL）  
+## 功能与设计
 
-> 注意：OAuth 支持未实现，但设计上可直接集成。适合作为原型或架构验证。
+### 0. 用户对象 CRUD 原型
+
+- 用户对象包含：
+  - `username`
+  - `password`
+  - 系统分发的唯一 `UUID`  
+  > 可横向扩展到邮箱、生日、会员等级等更多字段，但原型阶段未实现。  
+
+- 按照 RESTful 风格实现：
+  - **Create**: 创建用户  
+  - **Read**: 获取用户信息  
+  - **Update**: 更新用户信息  
+  - **Delete**: 删除用户  
+
+- 数据库操作与 handler 层解耦：
+  - 每个 CRUD 操作对应独立数据库函数：`create`, `read`, `update`, `delete`  
+  - 使用 PostgreSQL 持久化数据，支持事务和完整性检查  
+  - handler 仅负责 HTTP 接口逻辑，便于后续扩展和替换数据库实现  
+
+- 用户密码安全处理：
+  - 使用 **bcrypt** 加密存储密码  
+  - 永远不以明文存储密码，保证基本安全  
+
+---
+
+### 1. JWT 分发与验证（可接入阶段）
+
+- 提供独立的 JWT helper 包：
+  - 生成与验证 token  
+  - 支持 HS256 签名  
+  - 可未来接入 handler，实现身份认证中间件  
+
+- 原型阶段未集成上下文（Context）或自动注入到 CRUD handler  
+  > 也就是说，CRUD 和 JWT 功能是解耦的，调用者需手动使用 JWT helper，尚未实现“一步到位”的集成  
+
+---
 
 ## 技术栈
 
-- **Golang + net/http + Chi**：原生 HTTP + 轻量级路由  
-- **GORM**：数据库 ORM，支持 PostgreSQL / MySQL  
-- **UUID**：唯一用户 ID  
-- **JWT**：HS256 签名，独立 helper 函数提供 Issuing & Parsing  
-- **PostgreSQL**：事务支持，ORM 映射  
+- **Golang**：高性能后端语言  
+- **net/http + Chi**：轻量级路由与 HTTP handler  
+- **GORM**：ORM 操作 PostgreSQL 数据库  
+- **UUID**：用户唯一标识  
+- **bcrypt**：密码安全加密  
+- **JWT (HS256)**：独立包提供 token 发放与验证  
+- **PostgreSQL**：事务支持、持久化和数据完整性  
+
+---
 
 ## 技术亮点（原型导向）
 
-- **分层设计**：handler / model / db 操作分离，逻辑清晰  
-- **安全设计**：密码哈希存储 + JWT 身份验证示例，可直接接入中间件  
-- **原型可扩展**：用户信息结构和认证方案均可灵活扩展，例如邮箱、生日、购物等级、OAuth 等  
-- **RESTful API**：Swagger 文档已生成，可直接访问和测试  
-- **后续扩展友好**：可轻松集成 OAuth2 或其他认证方案，实现多认证、多属性用户管理
+- **分层设计**：handler 层与数据库层完全解耦，便于扩展  
+- **安全设计**：密码永远哈希存储，示范基本安全最佳实践  
+- **RESTful API**：符合标准的 CRUD 接口，便于前端或其他服务调用  
+- **数据库驱动**：PostgreSQL 作为数据持久层，展示事务和 ORM 映射能力  
+- **可扩展性**：用户对象可扩展字段，JWT 可集成到中间件，原型基础可平滑升级为生产系统  
 
+---
 
 ## API 示例
 
