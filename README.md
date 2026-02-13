@@ -28,7 +28,12 @@ This prototype demonstrates layered architecture, decoupled database operations 
 
 - Password security:
   - Stored using **bcrypt** hashing  
-  - Passwords are never stored in plain text, ensuring basic security  
+  - Passwords are never stored in plain text, ensuring basic security
+
+- Swagger / API Documentation Support
+  - The project integrates Swagger, allowing APIs to be accessed and tested directly in the browser
+  - All CRUD endpoints are documented, including request bodies, response examples, and HTTP methods
+
 
 ---
 
@@ -137,7 +142,12 @@ No Body
 
 - 用户密码安全处理：
   - 使用 **bcrypt** 加密存储密码  
-  - 永远不以明文存储密码，保证基本安全  
+  - 永远不以明文存储密码，保证基本安全
+
+- Swagger / API 文档支持
+  - 项目内集成了 Swagger，可在浏览器中直接访问并测试 API
+  - 所有 CRUD 接口均有文档化展示，包括请求 Body、响应示例和 HTTP 方法
+
 
 ---
 
