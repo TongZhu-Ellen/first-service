@@ -78,7 +78,9 @@ Body: { "username": "ellen", "password": "secret" }
 ### Get User Info
 ```http
 GET /user/{id}
-Body: { "username": "ellen", "password": "******" }
+No Body
+----
+ResponseBody: { "username": "ellen", "password": "******" }
 ```
 
 ### Update User
@@ -178,23 +180,25 @@ No Body
 ### 创建用户
 ```http
 POST /user
-Body: { "username": "ellen", "password": "secret" }
+请求体: { "username": "ellen", "password": "secret" }
 ```
 
 ### 获取用户信息
 ```http
 GET /user/{id}
-Body: { "username": "ellen", "password": "******" }
+无请求体
+---
+返回体: { "username": "ellen", "password": "******" }
 ```
 
 ### 更新用户
 ```http
 PUT /user/{id}
-Body: { "username": "ellen_updated", "password": "new_secret" }
+请求体: { "username": "ellen_updated", "password": "new_secret" }
 ```
 
 ### 删除用户
 ```http
 DELETE /user/{id}
-No Body
+无请求体
 ```
